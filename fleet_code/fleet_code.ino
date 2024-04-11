@@ -20,6 +20,12 @@ int arcadeButtonState = 0;
 int arcadeLastButtonState = 0;
 unsigned long lastTimestamp = 0;
 
+long time=0;
+int value;
+
+int periode = 2000;
+int displace = 500;
+
 int motorPin = 3;
 
 // variable resistor 
@@ -89,8 +95,8 @@ void modeOne() {
   }
  
   int photoVal = analogRead(ambient_photoresistor); // read in photoresistor val
-  //Serial.print("on inverse light mode: ");
-  //Serial.println(photoVal);
+  Serial.print("on inverse light mode: ");
+  Serial.println(photoVal);
   // crossfade on blue light, inverse
   int ledVal = map(photoVal, 0, 750, 255, 0);
   setBoth(0, 0, ledVal);
@@ -111,11 +117,10 @@ void modeTwo() {
       if (!changingColor) {
         Serial.println("color saved!");
       }
-
     }
      delay(5);
   }
-  modeLastButtonState = modeButtonState;
+  arcadeLastButtonState = arcadeButtonState;
 
   if (changingColor) {
     int val = analogRead(varResistor);
@@ -167,19 +172,28 @@ void modeThree() {
   int photoVal = analogRead(sand_photoresistor); // read in photoresistor val
   Serial.print("sand photoresistor is: ");
   Serial.println(photoVal);
-  if (photoVal < 30) {
+  if (photoVal < 400) {
     sleepTime = true;
     setSandColor(0, 0, 0);
   }
 
   if (sleepTime && !sleepTimeEnd) {
     // fade out
-    for (int i = 255; i >= 0; i--) {
-      setMainColor(i, i, i);
-      delay(100);
-    }
+    // for (int i = 255; i >= 0; i--) {
+    //   setMainColor(i, i, i);
+    //   delay(100);
+    // }
     sleepTimeEnd = true;
-   
+    time = millis();
+    value = 128+127*cos(2*PI/periode*time);
+    // value2 = 128+127*cos(2*PI/periode*(displace-time));
+    analogWrite(main_r, value);           // sets the value (range from 0 to 255) 
+    analogWrite(main_g, value);
+    analogWrite(main_b, value);
+    analogWrite(sand_r, value);           // sets the value (range from 0 to 255) 
+    analogWrite(sand_g, value);
+    analogWrite(sand_b, value);
+
   }
 }
 
